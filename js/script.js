@@ -61,18 +61,15 @@ console.log(config);
 	  console.log(response);
 	  
 		response.data.forEach((element) => {
-		console.log(element);
+			console.log(element);
 		
-      const dropdownItem = document.createElement("div");
-      dropdownItem.className = "dropdown-item";
-      dropdownItem.setAttribute("data-value", element.Supplier_Organisation);
-      dropdownItem.setAttribute("data-id", element.ID);
-      dropdownItem.innerText = element.Supplier_Organisation;
-      list.appendChild(dropdownItem);
-	}).catch(function (err) {
-		console.log(err);
-		
-	});
+			const dropdownItem = document.createElement("div");
+			dropdownItem.className = "dropdown-item";
+			dropdownItem.setAttribute("data-value", element.Supplier_Organisation);
+			dropdownItem.setAttribute("data-id", element.ID);
+			dropdownItem.innerText = element.Supplier_Organisation;
+			list.appendChild(dropdownItem);
+		});
 
     items = Array.from(list.children);
     orig = items.map((i) => i.textContent);
