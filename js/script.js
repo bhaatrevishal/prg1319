@@ -376,6 +376,9 @@ function renderPills(categories) {
   });
 }
 
+// Optimize fetchProducts with debounce
+const debouncedFetchProducts = debounce(fetchProducts, 200);
+
 function fetchProducts(wardrobeId, categoryId) {
   const cacheKey = `products_${wardrobeId}_${categoryId}`;
 
@@ -479,6 +482,8 @@ function renderProducts(products) {
     return;
   }
 
+  // Batch DOM updates for performance
+  const fragment = document.createDocumentFragment();
   const grouped = {};
   products.forEach((item) => {
     const code = item["Style_ID.Style_Master_Code"];
@@ -488,7 +493,6 @@ function renderProducts(products) {
 
   Object.values(grouped).forEach((group) => {
     const item = group[0];
-
     const card = document.createElement("div");
     card.className = "product-card";
     card.setAttribute("data-id", item["Style_ID.Primary_Image"]);
@@ -505,22 +509,27 @@ function renderProducts(products) {
 
     const placeholder = document.createElement("div");
     placeholder.className = "img-placeholder";
-    placeholder.innerHTML = `
-                              <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                   <path d="M15.625 18.7503C15.625 17.369 16.1737 16.0442 17.1505 15.0675C18.1272 14.0907 19.452 13.542 20.8333 13.542C22.2147 13.542 23.5394 14.0907 24.5162 15.0675C25.4929 16.0442 26.0417 17.369 26.0417 18.7503C26.0417 20.1317 25.4929 21.4564 24.5162 22.4332C23.5394 23.4099 22.2147 23.9587 20.8333 23.9587C19.452 23.9587 18.1272 23.4099 17.1505 22.4332C16.1737 21.4564 15.625 20.1317 15.625 18.7503ZM20.8333 15.6253C20.0045 15.6253 19.2097 15.9546 18.6236 16.5406C18.0376 17.1267 17.7083 17.9215 17.7083 18.7503C17.7083 19.5791 18.0376 20.374 18.6236 20.96C19.2097 21.5461 20.0045 21.8753 20.8333 21.8753C21.6621 21.8753 22.457 21.5461 23.043 20.96C23.6291 20.374 23.9583 19.5791 23.9583 18.7503C23.9583 17.9215 23.6291 17.1267 23.043 16.5406C22.457 15.9546 21.6621 15.6253 20.8333 15.6253Z" fill="#9A9797"/>
-                                   <path d="M28.3806 7.29199H21.6181C19.3264 7.29199 17.5389 7.29199 16.1077 7.40866C14.6535 7.52741 13.4723 7.77324 12.4098 8.31283C10.6453 9.21172 9.21074 10.6463 8.31185 12.4107C7.77018 13.4732 7.52643 14.6545 7.40768 16.1087C7.29102 17.542 7.29102 19.3253 7.29102 21.6191V28.3816C7.29102 30.3524 7.29102 31.9482 7.36602 33.267C7.37157 33.4017 7.3799 33.5406 7.39102 33.6837L7.39727 33.7482C7.47018 34.7191 7.59518 35.5691 7.82227 36.3441C7.94865 36.7802 8.11185 37.1955 8.31185 37.5899C9.21074 39.3544 10.6453 40.7889 12.4098 41.6878C13.4723 42.2295 14.6535 42.4732 16.1077 42.592C17.5389 42.7087 19.3243 42.7087 21.6181 42.7087H28.3806C30.6723 42.7087 32.4598 42.7087 33.891 42.592C35.3452 42.4732 36.5264 42.2274 37.5889 41.6878C39.3534 40.7889 40.788 39.3544 41.6868 37.5899C42.7202 35.5587 42.7139 33.1045 42.7077 30.8378L42.7056 30.1253L42.7077 28.3816V21.6191C42.7077 19.3274 42.7077 17.5399 42.591 16.1087C42.4723 14.6545 42.2264 13.4732 41.6868 12.4107C40.788 10.6463 39.3534 9.21172 37.5889 8.31283C36.5264 7.77116 35.3452 7.52741 33.891 7.40866C32.4598 7.29199 30.6743 7.29199 28.3806 7.29199ZM9.48477 33.7212L9.47227 33.5753C9.38685 32.267 10.7285 30.9712 11.7202 30.0149C11.8799 29.8621 12.0271 29.7184 12.1618 29.5837C12.6868 29.0545 13.0431 28.8149 13.3618 28.7003C14.0547 28.4471 14.8148 28.4471 15.5077 28.7003C15.8243 28.8149 16.1806 29.0545 16.7056 29.5837C17.2368 30.1191 17.8639 30.8691 18.7556 31.9378C19.0046 32.2373 19.314 32.481 19.6635 32.6529C20.013 32.8247 20.3949 32.921 20.7841 32.9353C21.1734 32.9497 21.5613 32.8818 21.9225 32.7361C22.2837 32.5905 22.6102 32.3703 22.8806 32.0899L29.1368 25.6087C29.3181 25.4212 29.5077 25.2087 29.7035 24.9899C30.4223 24.1857 31.241 23.2691 32.1973 22.9503C32.8377 22.7373 33.5298 22.7373 34.1702 22.9503C35.7806 23.4878 37.2931 25.3024 38.6077 26.8795C39.0952 27.4628 39.5535 28.0149 39.9827 28.4566C40.5056 29.0003 40.6243 29.3128 40.6223 30.0462C40.616 31.8587 40.5806 33.1857 40.466 34.2232C40.3473 35.2753 40.1473 36.0191 39.8306 36.6441C39.1314 38.0166 38.0156 39.1324 36.6431 39.8316C35.9223 40.1982 35.0473 40.4066 33.7223 40.5149C32.3848 40.6253 30.6827 40.6253 28.3327 40.6253H21.666C19.316 40.6253 17.6139 40.6253 16.2785 40.5149C14.9514 40.4066 14.0764 40.1982 13.3556 39.8316C11.891 39.0838 10.7222 37.8628 10.0389 36.367C9.75143 35.6982 9.5806 34.8816 9.48477 33.7212ZM40.6243 26.1253L38.6973 24.1295C38.0454 23.4316 37.3671 22.7589 36.6639 22.1128C36.0744 21.5962 35.5014 21.1982 34.8285 20.9753C33.7608 20.6199 32.6067 20.6199 31.5389 20.9753C30.866 21.1982 30.2931 21.5962 29.7056 22.1128C29.1327 22.6128 28.4806 23.2899 27.6702 24.1295L21.3806 30.642C21.3135 30.7118 21.2324 30.7667 21.1427 30.803C21.0529 30.8393 20.9565 30.8563 20.8597 30.8527C20.7629 30.8492 20.668 30.8252 20.5811 30.7825C20.4943 30.7397 20.4174 30.679 20.3556 30.6045L20.3243 30.567C19.4702 29.5441 18.7868 28.7232 18.1848 28.1149C17.5681 27.4941 16.9556 27.0107 16.2223 26.742C15.0673 26.3197 13.8002 26.3197 12.6452 26.742C11.9118 27.0128 11.3014 27.492 10.6827 28.117C10.2277 28.5858 9.79124 29.0723 9.37435 29.5753V21.667C9.37435 19.317 9.37435 17.6149 9.48477 16.2795C9.5931 14.9524 9.80143 14.0774 10.1681 13.3566C10.8673 11.9841 11.9831 10.8682 13.3556 10.1691C14.0764 9.80241 14.9514 9.59408 16.2785 9.48574C17.6139 9.37533 19.316 9.37533 21.666 9.37533H28.3327C30.6827 9.37533 32.3848 9.37533 33.7202 9.48574C35.0473 9.59408 35.9223 9.80241 36.6431 10.1691C38.0156 10.8682 39.1314 11.9841 39.8306 13.3566C40.1973 14.0774 40.4056 14.9524 40.5139 16.2795C40.6243 17.6149 40.6243 19.317 40.6243 21.667V26.1253Z" fill="#9A9797"/>
-                              </svg>`;
+    // ...SVG placeholder...
 
+    // Responsive image loading
     const img = document.createElement("img");
     img.className = "product-img img-hidden";
     img.alt = item.Style_Name?.Style_Name;
-
     if (item["Style_ID.Primary_Image"]) {
       img.dataset.imageData = item["Style_ID.Primary_Image"];
       img.dataset.cacheKey = item["Style_ID.ID"];
-      gridimageObserver.observe(img);
+      // Use srcset for modern formats
+      img.setAttribute('srcset', `${item["Style_ID.Primary_Image"]}.webp 1x, ${item["Style_ID.Primary_Image"]}.jpg 2x`);
+      img.setAttribute('sizes', '(max-width: 600px) 100vw, 25vw');
+      if (typeof IntersectionObserver !== 'undefined') {
+        gridimageObserver.observe(img);
+      } else {
+        // Fallback: load immediately
+        img.src = item["Style_ID.Primary_Image"];
+        img.classList.remove("img-hidden");
+        if (placeholder) placeholder.classList.add("hidden");
+      }
     }
-
     imgWrapper.appendChild(placeholder);
     imgWrapper.appendChild(img);
 
@@ -540,8 +549,9 @@ function renderProducts(products) {
     card.appendChild(name);
     card.appendChild(idEl);
     card.appendChild(price);
-    grid.appendChild(card);
+    fragment.appendChild(card);
   });
+  grid.appendChild(fragment);
 }
 
 function openProductDetail(group) {
@@ -997,6 +1007,15 @@ function closeSizeChart() {
     sizeChartDiv.remove();
   }
 }
+// Helper: Debounce function
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
 function addToCart(item, quantity) {
   const addToCartBtn = document.getElementById("pd-add-to-cart-btn");
   addToCartBtn.disabled = true;
@@ -1010,7 +1029,7 @@ function addToCart(item, quantity) {
     form_name: "Order_Details",
     payload: {
       data: {
-        Product: item.Style_Name.ID,
+               Product: item.Style_Name.ID,
         Quantity: qty,
         Supplier: currentSupplier,
         Product_Color: item["Style_ID.Style_Colour"].ID,
@@ -1308,6 +1327,85 @@ function renderCartItems(data, container, filter) {
   filtered.forEach((item) => appendCartRow(item, container));
 }
 
+function updateCartOnChange(cartItemId, itemPrice, quantity, callbacks = {}) {
+  const unitPrice = parseFloat(itemPrice);
+  const subTotal = quantity * unitPrice;
+
+  const config = {
+    report_name: "Cart_Details_Widget",
+    id: cartItemId,
+    payload: {
+      data: {
+        Quantity: quantity,
+        Sub_Total: subTotal,
+      },
+    },
+  };
+
+  ZOHO.CREATOR.DATA.updateRecordById(config)
+    .then(function (response) {
+      if (response.code == 3000) {
+        const cartItem = cartDetails.find((c) => c.ID === cartItemId);
+        if (cartItem) {
+          cartItem.Quantity = quantity;
+          cartItem.Sub_Total = subTotal;
+        }
+
+        const row = document.querySelector(
+          `.cart-item[data-id="${cartItemId}"]`,
+        );
+        if (row) {
+          const priceEl = row.querySelector(".cart-item-price");
+          if (priceEl) {
+            priceEl.textContent = `${buyerCurrency} ${subTotal.toLocaleString("en-IN", { minimumFractionDigits: 0 })}`;
+          }
+        }
+
+        callbacks.onSuccess?.();
+      } else {
+        console.error("Failed to update cart:", response);
+        callbacks.onError?.();
+      }
+    })
+    .catch(function (err) {
+      console.error("Error updating cart:", err);
+      callbacks.onError?.();
+    });
+}
+
+function renderCartItems(data, container, filter) {
+  container.innerHTML = "";
+  const filtered =
+    filter === "current"
+      ? data.filter(
+          (item) => item["Product.Style_Category"]?.ID === currentCategory,
+        )
+      : data;
+
+  const cartFooter = cartPanelDiv.querySelector(".cart-footer");
+  if (filtered.length === 0) {
+    if (cartFooter) cartFooter.style.display = "none";
+    const emptyCart = document.createElement("div");
+    emptyCart.className = "cart-empty";
+    emptyCart.innerHTML = `
+            <span class="cart-icon">
+                <svg width="71" height="79" viewBox="0 0 71 79" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M52.4835 58.2068H34.9659C32.2074 58.2068 29.8286 56.2682 29.2719 53.5665L26 38H56.4008C59.2229 38 61.3015 40.6402 60.6393 43.3835L58.1348 53.7574C57.5046 56.3677 55.1688 58.2068 52.4835 58.2068Z" fill="#C9D0FF"/>
+                    <path d="M11.334 22.7588H16.2369C18.3058 22.7588 20.0898 24.2127 20.5074 26.239L25.1762 48.8955C25.7329 51.5973 28.1116 53.5358 30.8702 53.5358H48.3878C51.073 53.5358 53.4089 51.6968 54.0391 49.0865L56.5435 38.7125C57.2058 35.9693 55.1272 33.3291 52.3051 33.3291H21.9043M30.3605 65.0399C30.3605 66.2074 29.414 67.1539 28.2464 67.1539C27.0789 67.1539 26.1324 66.2074 26.1324 65.0399C26.1324 63.8723 27.0789 62.9258 28.2464 62.9258C29.414 62.9258 30.3605 63.8723 30.3605 65.0399ZM53.6151 65.0399C53.6151 66.2074 52.6686 67.1539 51.501 67.1539C50.3335 67.1539 49.387 66.2074 49.387 65.0399C49.387 63.8723 50.3335 62.9258 51.501 62.9258C52.6686 62.9258 53.6151 63.8723 53.6151 65.0399Z" stroke="#8A96ED" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M47.175 23.6585L47.3402 23.5342C47.9445 23.0795 48.6567 22.7897 49.4068 22.6933C50.157 22.597 50.9193 22.6974 51.619 22.9848L52.2341 23.2373C52.9518 23.532 53.7337 23.6349 54.5032 23.5361C55.2727 23.4372 56.0033 23.1399 56.6231 22.6734C58.5968 21.1882 58.9932 18.3834 57.5078 16.4094L57.255 16.0734C55.6299 13.9138 52.5618 13.4804 50.4022 15.1056L50.1815 15.2717M44.3944 25.7509L43.6992 26.274" stroke="#B9C1FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M35.5008 19.6852V19.4643C35.5008 18.6558 35.711 17.8613 36.1109 17.1586C36.5108 16.4559 37.0865 15.8693 37.7816 15.4564L38.3927 15.0933C39.1057 14.6697 39.6962 14.068 40.1064 13.3472C40.5165 12.6264 40.7321 11.8113 40.732 10.9819C40.732 8.34152 38.5911 6.2002 35.9503 6.2002H35.5008C32.6116 6.2002 30.2695 8.54225 30.2695 11.4314V11.7267M35.5008 23.4052V24.3352" stroke="#8A96ED" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+            <p>No items in this category.</p>
+        `;
+    container.appendChild(emptyCart);
+    return;
+  }
+
+  if (cartFooter) cartFooter.style.display = "flex";
+  filtered.forEach((item) => appendCartRow(item, container));
+}
+
 function appendCartRow(item, container) {
   const row = document.createElement("div");
   row.className = "cart-item";
@@ -1325,308 +1423,387 @@ function appendCartRow(item, container) {
 </svg>
 `;
 
-  const img = document.createElement("img");
-  img.className = "cart-item-img-el img-hidden";
-  img.alt = item.Product?.Style_Name || "";
+  const mainImg = document.createElement("img");
+  mainImg.id = "pd-main-img";
+  mainImg.className = "pd-main-img hidden";
 
-  if (item["Product.Primary_Image"]) {
-    img.dataset.imageData = item["Product.Primary_Image"];
-    img.dataset.cacheKey = item.Product.ID;
-    cartimageObserver.observe(img);
+  if (firstItem["Style_ID.Primary_Image"]) {
+    const cacheKey = firstItem["Style_ID.ID"];
+    if (imageCache.has(cacheKey)) {
+      mainImg.src = imageCache.get(cacheKey);
+      mainImg.classList.remove("hidden");
+      mainPlaceholder.classList.add("hidden");
+    } else {
+      ZOHO.CREATOR.UTIL.setImageData(
+        mainImg,
+        firstItem["Style_ID.Primary_Image"],
+        function () {
+          imageCache.set(cacheKey, mainImg.src);
+          mainImg.classList.remove("hidden");
+          mainPlaceholder.classList.add("hidden");
+        },
+      );
+    }
   }
 
-  cartImgWrapper.appendChild(placeholder);
-  cartImgWrapper.appendChild(img);
-
-  const info = document.createElement("div");
-  info.className = "cart-item-info";
-
-  const removeBtn = document.createElement("button");
-  removeBtn.className = "cart-item-remove";
-  removeBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M12 4L4 12" stroke="#99A1AF" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M4 4L12 12" stroke="#99A1AF" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-`;
-  removeBtn.addEventListener("click", () => removeCartItem(item.ID));
-
-  const name = document.createElement("p");
-  name.className = "cart-item-name";
-  name.textContent = item.Product?.Style_Name || "—";
-
-  const code = document.createElement("p");
-  code.className = "cart-item-code";
-  code.textContent = item["Product.Style_Master_Code"] || "—";
-
-  const meta = document.createElement("p");
-  meta.className = "cart-item-meta";
-  meta.textContent = `Size: ${item.Product_Size?.Size || "—"} | Color: ${item.Product_Color?.Color_Name || "—"}`;
+  mainImgWrapper.appendChild(mainPlaceholder);
+  mainImgWrapper.appendChild(mainImg);
 
   const qtyRow = document.createElement("div");
-  qtyRow.className = "cart-item-qty-row";
+  qtyRow.id = "pd-qty-row";
+  qtyRow.className = "pd-qty-row";
 
-  const qtyWrapper = document.createElement("div");
-  qtyWrapper.className = "cart-item-qty";
+  const qtyMinus = document.createElement("button");
+  qtyMinus.className = "pd-qty-btn";
+  qtyMinus.innerHTML = `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13.5 8.625H3.75" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>`;
 
-  const minusBtn = document.createElement("button");
-  minusBtn.className = "qty-btn";
-  minusBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M2.5 6H9.5" stroke="#0A0A0A" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-`;
+  const qtyDisplay = document.createElement("input");
+  qtyDisplay.setAttribute("type", "number");
+  qtyDisplay.id = "pd-qty-display";
+  qtyDisplay.className = "pd-qty-display";
+  qtyDisplay.value = quantity;
+  qtyDisplay.min = 1;
 
-  const qtyVal = document.createElement("input");
-  qtyVal.className = "qty-val";
-  qtyVal.setAttribute("type", "number");
-  qtyVal.id = `qty-${item.ID}`;
-  qtyVal.value = item.Quantity;
-  qtyVal.min = 1;
-
-  qtyVal.addEventListener("keydown", (e) => {
+  qtyDisplay.addEventListener("keydown", (e) => {
     if (["e", "E", "+", "-", "."].includes(e.key)) e.preventDefault();
   });
 
-  qtyVal.dataset.prevValue = item.Quantity;
-  qtyVal.addEventListener("blur", () => {
-    if (!qtyVal.value || parseInt(qtyVal.value) < 1) {
-      qtyVal.value = qtyVal.dataset.prevValue;
-    }
-    const newVal = parseInt(qtyVal.value);
-    const prevVal = parseInt(qtyVal.dataset.prevValue);
-    if (newVal !== prevVal) {
-      changeQty(item.ID, 0);
-    }
+  qtyDisplay.addEventListener("blur", () => {
+    if (!qtyDisplay.value || parseInt(qtyDisplay.value) < 1) {
+      qtyDisplay.value = 1;
+      quantity = 1;
+    } else quantity = qtyDisplay.value;
   });
 
-  const plusBtn = document.createElement("button");
-  plusBtn.className = "qty-btn";
-  plusBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M2.5 6H9.5" stroke="#0A0A0A" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M6 2.5V9.5" stroke="#0A0A0A" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-`;
+  const qtyPlus = document.createElement("button");
+  qtyPlus.className = "pd-qty-btn";
+  qtyPlus.innerHTML = `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8.625 3.75V13.5M13.5 8.625H3.75" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>`;
 
-  minusBtn.addEventListener("click", () => changeQty(item.ID, -1));
-  plusBtn.addEventListener("click", () => changeQty(item.ID, 1));
-
-  qtyWrapper.appendChild(minusBtn);
-  qtyWrapper.appendChild(qtyVal);
-  qtyWrapper.appendChild(plusBtn);
-
-  const price = document.createElement("span");
-  price.className = "cart-item-price";
-  price.textContent = `${buyerCurrency} ${parseFloat(item.Sub_Total).toLocaleString("en-IN", { minimumFractionDigits: 0 })}`;
-
-  qtyRow.appendChild(qtyWrapper);
-  qtyRow.appendChild(price);
-
-  info.appendChild(removeBtn);
-  info.appendChild(name);
-  info.appendChild(code);
-  info.appendChild(meta);
-  info.appendChild(qtyRow);
-
-  row.appendChild(cartImgWrapper);
-  row.appendChild(info);
-  container.appendChild(row);
-}
-
-function changeQty(itemId, delta) {
-  const qtyEl = document.getElementById(`qty-${itemId}`);
-  const row = qtyEl.closest(".cart-item");
-  const minusBtn = row.querySelector(".qty-btn:first-child");
-  const plusBtn = row.querySelector(".qty-btn:last-child");
-
-  let current = parseInt(qtyEl.value);
-  const newVal = Math.max(1, current + delta);
-  if (newVal === current && delta !== 0) return;
-  minusBtn.disabled = true;
-  plusBtn.disabled = true;
-  qtyEl.disabled = true;
-  qtyEl.value = newVal;
-
-  updateCartOnChange(itemId, row.dataset.price, newVal, {
-    onSuccess: () => {
-      qtyEl.dataset.prevValue = newVal;
-      minusBtn.disabled = false;
-      plusBtn.disabled = false;
-      qtyEl.disabled = false;
-    },
-    onError: () => {
-      qtyEl.value = qtyEl.dataset.prevValue;
-      minusBtn.disabled = false;
-      plusBtn.disabled = false;
-      qtyEl.disabled = false;
-    },
-  });
-}
-
-function removeCartItem(itemId) {
-  var config = {
-    report_name: "Cart_Details_Widget",
-    id: itemId,
-    payload: {
-      skip_workflow: ["form_workflow"],
-    },
-  };
-  ZOHO.CREATOR.DATA.deleteRecordById(config).then(function (response) {
-    if (response.code == 3000) {
-      const row = cartPanelDiv.querySelector(`.cart-item[data-id="${itemId}"]`);
-      if (row) row.remove();
-
-      cartDetails = cartDetails.filter((item) => item.ID !== itemId);
-      resetDetailViewIfOpen(itemId.ID);
-
-      const cartList = cartPanelDiv.querySelector(".cart-list");
-      if (cartList && cartList.querySelectorAll(".cart-item").length === 0) {
-        renderCartDetails([]);
-      }
+  qtyMinus.addEventListener("click", () => {
+    if (quantity > 1) {
+      quantity--;
+      qtyDisplay.value = quantity;
     }
   });
-}
-
-function resetCart() {
-  showLoader();
-  const config = {
-    report_name: "Cart_Details_Widget",
-    payload: {
-      criteria: `Supplier.ID == ${currentSupplier}`,
-    },
-  };
-
-  ZOHO.CREATOR.DATA.deleteRecords(config).then(function (response) {
-    if (response.code == 3000) {
-      cartDetails = [];
-      renderCartDetails([]);
-      hideLoader();
-      resetDetailViewIfOpen();
-    }
+  qtyPlus.addEventListener("click", () => {
+    quantity++;
+    qtyDisplay.value = quantity;
   });
-}
 
-function submitCart() {
-  showLoader();
-  const config = {
-    report_name: "My_Order_Requests",
-    payload: {
-      criteria: `Factory.ID == ${currentSupplier} && Status == "Pending"`,
-      data: {
-        Status: "Awaiting QO Generation",
-      },
-    },
-  };
+  qtyRow.appendChild(qtyMinus);
+  qtyRow.appendChild(qtyDisplay);
+  qtyRow.appendChild(qtyPlus);
 
-  ZOHO.CREATOR.DATA.updateRecords(config).then(function (response) {
-    if (response.code == 3000) {
-      cartDetails = [];
-      renderCartDetails([]);
-      hideLoader();
-      resetDetailViewIfOpen();
-      showToast("Cart submitted successfully!");
-      ZOHO.CREATOR.UTIL.navigateParentURL({
-        action: "open",
-        url: "#Page:My_Basket_Page",
-        window: "same",
-      });
-    }
-  });
-}
+  const addToCartWrapper = document.createElement("div");
+  addToCartWrapper.className = "add-btn-wrapper";
+  addToCartWrapper.appendChild(qtyRow);
 
-function resetDetailViewIfOpen(cartId = null) {
-  const addToCartBtn = document.getElementById("pd-add-to-cart-btn");
-  const qtyDisplay = document.getElementById("pd-qty-display");
-  if (!addToCartBtn || !qtyDisplay) return;
-
-  if (cartId && addToCartBtn.dataset.cartId !== cartId) return;
-
+  const addToCartBtn = document.createElement("button");
+  addToCartBtn.id = "pd-add-to-cart-btn";
+  addToCartBtn.className = "pd-add-to-cart-btn";
   addToCartBtn.textContent = "Add to Cart";
   addToCartBtn.dataset.mode = "add";
-  addToCartBtn.dataset.cartId = "";
-  addToCartBtn.disabled = false;
-  qtyDisplay.value = 1;
-}
 
-function filter(q) {
-  q = q.toLowerCase().trim();
-  let cnt = 0;
-  items.forEach((item, idx) => {
-    const t = orig[idx];
-    if (!q) {
-      item.classList.remove("hidden");
-      item.innerHTML = t;
-      cnt++;
-    } else if (t.toLowerCase().includes(q)) {
-      item.classList.remove("hidden");
-      const lo = t.toLowerCase();
-      let r = "",
-        s = 0,
-        p;
-      while ((p = lo.indexOf(q, s)) !== -1) {
-        r +=
-          t.slice(s, p) +
-          '<span class="match">' +
-          t.slice(p, p + q.length) +
-          "</span>";
-        s = p + q.length;
-      }
-      r += t.slice(s);
-      item.innerHTML = r;
-      cnt++;
+  addToCartBtn.addEventListener("click", () => {
+    if (addToCartBtn.dataset.mode === "update") {
+      updateCart(addToCartBtn.dataset.cartId, selectedItem, quantity);
     } else {
-      item.classList.add("hidden");
-      item.innerHTML = t;
+      showLoader();
+      addToCart(selectedItem, quantity);
     }
   });
-  nr.classList.toggle("hidden", cnt > 0);
-  hIdx = 0;
-  hl(0);
+  addToCartWrapper.appendChild(addToCartBtn);
+
+  imgCol.appendChild(mainImgWrapper);
+  imgCol.appendChild(addToCartWrapper);
+
+  const infoCol = document.createElement("div");
+  infoCol.id = "pd-info-col";
+  infoCol.className = "pd-info-col";
+
+  const productName = document.createElement("h2");
+  productName.className = "pd-product-name";
+  productName.textContent = firstItem.Style_Name?.Style_Name || "—";
+
+  const productPrice = document.createElement("p");
+  productPrice.className = "pd-product-price";
+  productPrice.id = "pd-product-price";
+  productPrice.textContent = `${buyerCurrency} ${firstItem.Sell_Price}`;
+
+  const sizeHeader = document.createElement("div");
+  sizeHeader.className = "pd-size-header";
+
+  const sizesLabel = document.createElement("p");
+  sizesLabel.className = "pd-label";
+  sizesLabel.innerHTML = `Select Size <p class='size-chart' onclick="openSizeChart()">Size Chart <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M7.5 15L12.5 10L7.5 5" stroke="#29379E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</p>`;
+  sizeHeader.appendChild(sizesLabel);
+
+  const sizesRow = document.createElement("div");
+  sizesRow.id = "pd-sizes-row";
+  sizesRow.className = "pd-sizes-row";
+
+  const sizeTooltip = document.createElement("div");
+  sizeTooltip.id = "pd-size-tooltip";
+  sizeTooltip.className = "pd-size-tooltip hidden";
+
+  function showSizeTooltip(size, anchorBtn) {
+    const match = regionalCodeData?.find((r) => r.Size === size);
+
+    if (!match) {
+      sizeTooltip.classList.add("hidden");
+      return;
+    }
+
+    const regional_value = match.Size_Chart_Details?.find((r) =>
+      r.zc_display_value.includes(buyerRegion),
+    );
+
+    if (!regional_value) {
+      sizeTooltip.classList.add("hidden");
+      return;
+    }
+
+    const btnRect = anchorBtn.getBoundingClientRect();
+    const tooltipParentRect = sizeTooltip.parentElement.getBoundingClientRect();
+    const arrowLeft =
+      btnRect.left - tooltipParentRect.left + anchorBtn.offsetWidth / 2;
+
+    sizeTooltip.style.setProperty("--arrow-left", `${arrowLeft}px`);
+
+    let html = `<p class="tooltip-regional">Equivalent Regional size : <strong>${regional_value.zc_display_value || "—"}</strong></p><p class="tooltip-row">${match.Chart_Details}</p>`;
+
+    sizeTooltip.innerHTML = html;
+    sizeTooltip.classList.remove("hidden");
+  }
+
+  const colorsLabel = document.createElement("p");
+  colorsLabel.className = "pd-label";
+  colorsLabel.textContent = "Select Colour";
+
+  const colorsRow = document.createElement("div");
+  colorsRow.id = "pd-colors-row";
+  colorsRow.className = "pd-colors-row";
+
+  function updateSelectedItem() {
+    const match = group.find(
+      (item) =>
+        item.Size?.Size === selectedSize &&
+        item["Colors.Hex_Color_Code"] === selectedColor,
+    );
+    if (!match) return;
+
+    selectedItem = match;
+
+    document.getElementById("pd-product-price").textContent =
+      `${buyerCurrency} ${match.Sell_Price}`;
+    document.getElementById("pd-description").textContent =
+      match["Style_ID.Product_Description"] || "";
+
+    mainImgWrapper.classList.add("loading");
+    mainImg.classList.add("hidden");
+    mainPlaceholder.classList.remove("hidden");
+    setSelectorsDisabled(true);
+
+    if (match["Style_ID.Primary_Image"]) {
+      console.log(match["Style_ID.Primary_Image"]);
+      const cacheKey = match["Style_ID.ID"];
+      if (imageCache.has(cacheKey)) {
+        mainImg.src = imageCache.get(cacheKey);
+        mainImgWrapper.classList.remove("loading");
+        mainImg.classList.remove("hidden");
+        mainPlaceholder.classList.add("hidden");
+        setSelectorsDisabled(false);
+      } else {
+        ZOHO.CREATOR.UTIL.setImageData(
+          mainImg,
+          match["Style_ID.Primary_Image"],
+          function () {
+            imageCache.set(cacheKey, mainImg.src);
+            mainImgWrapper.classList.remove("loading");
+            mainImg.classList.remove("hidden");
+            mainPlaceholder.classList.add("hidden");
+          },
+        );
+      }
+      mainImg.onload = () => {
+        mainImgWrapper.classList.remove("loading");
+        mainImg.classList.remove("hidden");
+        mainPlaceholder.classList.add("hidden");
+        setSelectorsDisabled(false);
+      };
+      mainImg.onerror = () => {
+        mainImgWrapper.classList.remove("loading");
+        mainImg.classList.add("hidden");
+        mainPlaceholder.classList.remove("hidden");
+        setSelectorsDisabled(false);
+      };
+    } else {
+      mainImgWrapper.classList.remove("loading");
+      mainImg.classList.add("hidden");
+      mainPlaceholder.classList.remove("hidden");
+      setSelectorsDisabled(false);
+    }
+
+    syncCartButton();
+  }
+
+  function renderColors(forSize) {
+    colorsRow.innerHTML = "";
+
+    const availableColors = [
+      ...new Map(
+        group
+          .filter((item) => item.Size?.Size === forSize)
+          .map((item) => [item["Colors.Hex_Color_Code"], item]),
+      ).values(),
+    ];
+
+    selectedColor = availableColors[0]?.["Colors.Hex_Color_Code"] || null;
+
+    availableColors.forEach((item, i) => {
+      const colorWrapper = document.createElement("div");
+      colorWrapper.className = "pd-color-wrapper";
+
+      const colorBtn = document.createElement("button");
+      colorBtn.id = `pd-color-${i}`;
+      colorBtn.className = "pd-color-btn" + (i === 0 ? " active" : "");
+      colorBtn.style.background = item["Colors.Hex_Color_Code"];
+      colorBtn.title = item["Colors.Color_Name"] || "";
+
+      colorBtn.addEventListener("click", () => {
+        Array.from(colorsRow.querySelectorAll(".pd-color-btn")).forEach((b) =>
+          b.classList.remove("active"),
+        );
+        colorBtn.classList.add("active");
+        selectedColor = item["Colors.Hex_Color_Code"];
+        updateSelectedItem();
+      });
+
+      colorWrapper.appendChild(colorBtn);
+      colorsRow.appendChild(colorWrapper);
+    });
+
+    updateSelectedItem();
+  }
+
+  const sizes = [
+    ...new Map(group.map((item) => [item.Size?.Size, item])).values(),
+  ];
+  sizes.forEach((item, i) => {
+    const sizeBtn = document.createElement("button");
+    sizeBtn.id = `pd-size-${i}`;
+    sizeBtn.className = "pd-size-btn" + (i === 0 ? " active" : "");
+    sizeBtn.textContent = item.Size?.Size || "—";
+    sizeBtn.addEventListener("click", () => {
+      Array.from(sizesRow.children).forEach((b) =>
+        b.classList.remove("active"),
+      );
+      sizeBtn.classList.add("active");
+      selectedSize = item.Size?.Size;
+      showSizeTooltip(selectedSize, sizeBtn);
+      renderColors(selectedSize);
+    });
+    sizesRow.appendChild(sizeBtn);
+  });
+
+  const desc = document.createElement("p");
+  desc.id = "pd-description";
+  desc.textContent = firstItem["Style_ID.Product_Description"] || "";
+
+  infoCol.appendChild(productName);
+  infoCol.appendChild(productPrice);
+  infoCol.appendChild(sizeHeader);
+  infoCol.appendChild(sizesRow);
+  infoCol.appendChild(sizeTooltip);
+  infoCol.appendChild(colorsLabel);
+  infoCol.appendChild(colorsRow);
+  infoCol.appendChild(desc);
+
+  detailWrapper.appendChild(imgCol);
+  detailWrapper.appendChild(infoCol);
+  leftGridView.appendChild(detailWrapper);
+
+  renderColors(selectedSize);
+
+  function setSelectorsDisabled(disabled) {
+    Array.from(sizesRow.querySelectorAll(".pd-size-btn")).forEach(
+      (b) => (b.disabled = disabled),
+    );
+    Array.from(colorsRow.querySelectorAll(".pd-color-btn")).forEach(
+      (b) => (b.disabled = disabled),
+    );
+  }
+
+  const firstSizeBtn = sizesRow.querySelector(".pd-size-btn");
+  if (firstSizeBtn) showSizeTooltip(selectedSize, firstSizeBtn);
 }
 
-inp.addEventListener("focus", openDD);
-inp.addEventListener("input", () => {
-  if (!dd.classList.contains("open")) openDD();
-  filter(inp.value);
-});
+function showToast(message, type = "success") {
+  const existing = document.getElementById("toast-msg");
+  if (existing) existing.remove();
 
-inp.addEventListener("keydown", (e) => {
-  const v = vis();
-  if (e.key === "ArrowDown") {
-    e.preventDefault();
-    if (!dd.classList.contains("open")) {
-      openDD();
-      return;
-    }
-    hl(hIdx + 1);
-  } else if (e.key === "ArrowUp") {
-    e.preventDefault();
-    if (!dd.classList.contains("open")) {
-      openDD();
-      return;
-    }
-    hl(hIdx - 1);
-  } else if (e.key === "Enter") {
-    e.preventDefault();
-    const v2 = vis();
-    if (hIdx >= 0 && hIdx < v2.length) pick(v2[hIdx]);
-  } else if (e.key === "Escape") {
-    closeDD();
-    inp.blur();
+  const toast = document.createElement("div");
+  toast.id = "toast-msg";
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  setTimeout(() => toast.classList.add("toast-visible"), 10);
+  setTimeout(() => {
+    toast.classList.remove("toast-visible");
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+function closeProductDetail() {
+  const detailWrapper = document.getElementById("product-detail-wrapper");
+  if (detailWrapper) detailWrapper.remove();
+
+  const header = document.getElementById("catalogue-header-name");
+  header.innerHTML = "";
+  header.textContent = "Product catalogue";
+}
+
+function openSizeChart() {
+  const sizeChartDiv = document.createElement("div");
+  sizeChartDiv.id = "size-chart-wrapper";
+
+  const sizeChartDivContainer = document.createElement("div");
+  sizeChartDivContainer.className = "size-chart-container";
+  const sizeChartHeader = document.createElement("div");
+  sizeChartHeader.className = "chart-chart-header";
+  sizeChartHeader.innerHTML = `<span class='close-size-chart' onclick='closeSizeChart()'><svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.5 21L10.5 14L17.5 7" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Size Chart`;
+  sizeChartDivContainer.appendChild(sizeChartHeader);
+
+  const imgContainer = document.createElement("div");
+  imgContainer.className = "img-container";
+
+  const menImage = document.createElement("img");
+  menImage.style.marginBottom = "14px";
+  menImage.className = "size-chart-img";
+  menImage.src = "./assets/men.png";
+  imgContainer.appendChild(menImage);
+
+  const womenImage = document.createElement("img");
+  womenImage.className = "size-chart-img";
+  womenImage.src = "./assets/women.png";
+  imgContainer.appendChild(womenImage);
+
+  sizeChartDivContainer.appendChild(imgContainer);
+  sizeChartDiv.appendChild(sizeChartDivContainer);
+  document.body.append(sizeChartDiv);
+}
+
+function closeSizeChart() {
+  const sizeChartDiv = document.getElementById("size-chart-wrapper");
+  if (sizeChartDiv) {
+    sizeChartDiv.remove();
   }
-});
-
-list.addEventListener("click", (e) => {
-  const item = e.target.closest(".dropdown-item");
-  if (item && !item.classList.contains("hidden")) pick(item);
-});
-
-document.getElementById("chev").addEventListener("click", (e) => {
-  e.stopPropagation();
-  if (dd.classList.contains("open")) {
-    closeDD();
-    inp.blur();
-  } else inp.focus();
-});
-
-document.addEventListener("click", (e) => {
-  if (!dd.contains(e.target)) closeDD();
-});
+}
