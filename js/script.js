@@ -36,7 +36,6 @@ async function initiateFlow() {
     buyerEmail = response.buyerEmail;
     buyerRegion = response.buyerRegion;
     userRole = response.userRole;
-    console.log(response);
   });
 
   if (userRole != "Buyer") {
@@ -57,7 +56,9 @@ async function initiateFlow() {
     report_name: "Suppliers_Widget",
   };
 
-  ZOHO.CREATOR.DATA.getRecords(config).then(function (response) {
+	ZOHO.CREATOR.DATA.getRecords(config).then(function (response) {
+	  console.log(response);
+	  
     response.data.forEach((element) => {
       const dropdownItem = document.createElement("div");
       dropdownItem.className = "dropdown-item";
