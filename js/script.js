@@ -55,6 +55,7 @@ async function initiateFlow() {
   let config = {
     report_name: "Suppliers_Widget",
   };
+console.log(config);
 
 	ZOHO.CREATOR.DATA.getRecords(config).then(function (response) {
 	  console.log(response);
