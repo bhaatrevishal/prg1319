@@ -66,7 +66,10 @@ async function initiateFlow() {
       dropdownItem.setAttribute("data-id", element.ID);
       dropdownItem.innerText = element.Supplier_Organisation;
       list.appendChild(dropdownItem);
-    });
+	}).catch(function (err) {
+		console.log(err);
+		
+	});
 
     items = Array.from(list.children);
     orig = items.map((i) => i.textContent);
