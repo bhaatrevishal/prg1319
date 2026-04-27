@@ -60,7 +60,9 @@ console.log(config);
 	ZOHO.CREATOR.DATA.getRecords(config).then(function (response) {
 	  console.log(response);
 	  
-    response.data.forEach((element) => {
+		response.data.forEach((element) => {
+		console.log(element);
+		
       const dropdownItem = document.createElement("div");
       dropdownItem.className = "dropdown-item";
       dropdownItem.setAttribute("data-value", element.Supplier_Organisation);
