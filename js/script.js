@@ -34,6 +34,7 @@ async function initiateFlow() {
 		buyerEmail = response.buyerEmail;
 		buyerRegion = response.buyerRegion;
 		userRole = response.userRole;
+		console.log(response);
 	});
 
 	if (userRole != "Buyer") {
