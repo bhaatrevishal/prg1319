@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script src="https://static.zohocdn.com/creator/widgets/version/2.0/widgetsdk-min.js"></script>
+		<script src="js/script.js" defer></script>
+		<link rel="stylesheet" href="css/style.css" />
+	</head>
+	<body>
+		<div class="catalogue-wrapper">
+			<div class="catalogue-header">
+				<div class="header-name" id="catalogue-header-name">Product catalogue</div>
+				<div class="dropdown" id="dd">
+					<div class="dropdown-toggle">
+						<input type="text" id="inp" placeholder="Select Supplier" autocomplete="off" spellcheck="false" />
+						<div class="chevron" id="chev">
+							<svg viewBox="0 0 16 10" fill="none">
+								<path
+									d="M1.5 1.5L8 8L14.5 1.5"
+									stroke="#3D3B8E"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round" />
+							</svg>
+						</div>
+					</div>
+					<div class="dropdown-panel">
+						<div class="dropdown-list" id="list"></div>
+						<div class="no-results hidden" id="nr">No results found</div>
+					</div>
+				</div>
+			</div>
+			<div class="catalogue-content empty" id="cat-content">Please select a supplier before adding the product to your cart.</div>
+		</div>
+		<div id="cart-loader" class="hide-loader"><div class="loader"></div></div>
+	</body>
+</html>
