@@ -1,4 +1,3 @@
-
 const dd = document.getElementById("dd");
 const inp = document.getElementById("inp");
 const list = document.getElementById("list");
@@ -28,7 +27,6 @@ function hideLoader() {
 function showLoader() {
   loader.classList.remove("hide-loader");
 }
-initiateFlow();
 
 async function initiateFlow() {
   await ZOHO.CREATOR.UTIL.getQueryParams().then((response) => {
@@ -55,14 +53,10 @@ async function initiateFlow() {
   let config = {
     report_name: "Suppliers_Widget",
   };
-console.log(config);
 
 	ZOHO.CREATOR.DATA.getRecords(config).then(function (response) {
-	  console.log(response);
-	  
 		response.data.forEach((element) => {
-		
-			const dropdownItem = document.createElement("div");
+		const dropdownItem = document.createElement("div");
 			dropdownItem.className = "dropdown-item";
 			dropdownItem.setAttribute("data-value", element.Supplier_Organisation);
 			dropdownItem.setAttribute("data-id", element.ID);
@@ -75,6 +69,8 @@ console.log(config);
     hideLoader();
   });
 }
+initiateFlow();
+
 
 function vis() {
   return items.filter((i) => !i.classList.contains("hidden"));
