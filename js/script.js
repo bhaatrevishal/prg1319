@@ -1,4 +1,3 @@
-initiateFlow();
 
 const dd = document.getElementById("dd");
 const inp = document.getElementById("inp");
@@ -29,6 +28,7 @@ function hideLoader() {
 function showLoader() {
   loader.classList.remove("hide-loader");
 }
+initiateFlow();
 
 async function initiateFlow() {
   await ZOHO.CREATOR.UTIL.getQueryParams().then((response) => {
@@ -61,7 +61,6 @@ console.log(config);
 	  console.log(response);
 	  
 		response.data.forEach((element) => {
-			console.log(element);
 		
 			const dropdownItem = document.createElement("div");
 			dropdownItem.className = "dropdown-item";
